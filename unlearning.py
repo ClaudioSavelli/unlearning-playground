@@ -6,6 +6,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from Utils.utils import set_seed, parse_cmd_line_params
+from Utils.evaluation_metrics import print_evaluation_metrics
 import unlearners
 
 def main():
@@ -31,6 +32,8 @@ def main():
 
     retain_dataset = None # TODO: Load or create the retain dataset
     forget_dataset = None # TODO: Load or create the forget dataset
+    val_dataset = None # TODO: Load or create the validation dataset
+    test_dataset = None # TODO: Load or create the test dataset
     model = None # TODO: Load or train the Original model
 
     time = 0
@@ -75,10 +78,15 @@ def main():
         else:
             time = unlearner(model, retain_dataloader, forget_dataloader, device, lr=args.lr, seed=args.seed, num_epochs=args.epochs)
 
-    txt_dir = f"times_{args.dataset}_{args.model_name_or_path}.txt"
+    output_dir = f"{output_dir}/{unlearner_name}/"
+    os.makedirs(output_dir, exist_ok=True)
 
-    with open(txt_dir, 'a') as f:
-        f.write(f'{unlearner_name}: {time}\n')
+    dict = print_evaluation_metrics(model, forget_dataset, val_dataset, test_dataset, output_dir, device, save=args.save)
+
+    with open(f"{output_dir}/evaluation_metrics.txt", 'w') as f:
+        for key, value in dict.items():
+            f.write(f'{key}: {value}\n')
+        f.write(f'Unlearning Time: {time}\n')
 
     return
 

@@ -71,5 +71,13 @@ def parse_cmd_line_params():
         type=int,
         required=False
     )
+    parser.add_argument(
+        "--save", 
+        help="save the outputs",
+        default=1,
+        type=int,
+        required=False
+    )
+
     args = parser.parse_args()
     return args
